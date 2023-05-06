@@ -6,35 +6,33 @@ import "fmt"
 type FSlice[T any] []T
 
 // method signatures
+type MapFunction[T any] func(v T, i int, arr []T) T
+type FilterFunction[T any] func(v T, i int, arr []T) bool
+type SomeFunction[T any] func(v T, i int, arr []T) bool
+type EveryFunction[T any] func(v int, i int, arr []T) bool
 
-type MapFunction[T any] (v T, i int, arr []T) (T)
-type FilterFunction[X] func(v X, i int, arr []X) (bool)
-type SomeFunction func(v int, i int, arr []int) bool
-type EveryFunction func(v int, i int, arr []int) bool
-
-
-type MethodSet interface {
-	Map(MapFunction) []int
-	Filter(FilterFunction) bool
-	Some(SomeFunction) bool
-	Every(EveryFunction) bool
+// interface
+type MethodSet[T any] interface {
+	Map(MapFunction[T]) []T
+	Filter(FilterFunction[T]) bool
+	Some(SomeFunction[T]) bool
+	Every(EveryFunction[T]) bool
 }
-
 
 func NewFSlice[T any](inputSlice []T) FSlice[T] {
 	return FSlice[T](inputSlice)
 }
 
-func (fs FSlice[I]) Map(fn func[I, O](I,int,[]I) (FSlice[O])) FSlice[O] {
-	var r []O
+func (fs FSlice[T]) Map(fn func(v T, i int, self []T) T) FSlice[T] {
+	var r []T
 	for i, v := range fs {
 		r = append(r, fn(v, i, fs))
 	}
-	return FSlice[O](r)
+	return FSlice[T](r)
 }
 
-func (fs FSlice) Filter(fn FilterFunction) FSlice {
-	var r FSlice
+func (fs FSlice[T]) Filter(fn func(v T, i int, self []T) bool) FSlice[T] {
+	var r FSlice[T]
 
 	for i, v := range fs {
 		if fn(v, i, fs) {
@@ -48,17 +46,15 @@ func (fs FSlice) Filter(fn FilterFunction) FSlice {
 func main() {
 
 	slice1 := []int{1, 2, 3, 4, 5}
-
-	var doubleIt MapFunction[int, int] = func(v int, _ int, _ []int) int {
+	var doubleIt MapFunction[int] = func(v int, _ int, _ []int) int {
 		return v * 2
 	}
-
 	var everySecond FilterFunction[int] = func(_ int, i int, _ []int) bool {
 		return (i%2 == 0)
 	}
 
-	doubles := FSlice(slice1).Map(doubleIt)
-	staggered := FSlice(slice1).Filter(everySecond).Map(doubleIt).Map(doubleIt)
+	doubles := FSlice[int](slice1).Map(doubleIt)
+	staggered := FSlice[int](slice1).Filter(everySecond).Map(doubleIt).Map(doubleIt)
 
 	fmt.Println(doubles)
 	fmt.Println(staggered)
