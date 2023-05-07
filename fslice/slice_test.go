@@ -2,7 +2,10 @@ package fslice_test
 
 import (
 	"reflect"
+	"strings"
 	"testing"
+
+	lorem "github.com/drhodes/golorem"
 )
 
 func assertDeepEquals[T comparable](t testing.TB, got []T, want []T) {
@@ -34,4 +37,9 @@ func generateFloats(howmany int) []float64 {
 		r = append(r, j)
 	}
 	return r
+}
+
+func generateLoremIpsum(numwords int) []string {
+	text := lorem.Sentence(numwords, numwords)
+	return strings.Split(text, " ")
 }
