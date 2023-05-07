@@ -4,7 +4,7 @@ Go Functional provides a Go package called Functional, which provides Functional
 
 ## Design Goals
 
-- near-zero cost abstraction
+- near-zero cost abstraction, with allowances made for readability and flexibility
 - respectful of both Functional Programming and Go idioms
 - well defined behaviour
 - well tested
