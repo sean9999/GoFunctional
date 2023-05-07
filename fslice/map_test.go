@@ -5,6 +5,7 @@ import (
 	"reflect"
 	"strings"
 
+	"regexp"
 	"testing"
 
 	"github.com/sean9999/GoFunctional/fslice"
@@ -52,19 +53,20 @@ func TestMap(t *testing.T) {
 }
 
 // prevent compiler from throughing away mem between results
-var benchMarkResult []float64
+var benchMarkFloatResult []float64
+var benchMarkStringResult []string
 
 func BenchmarkMap(b *testing.B) {
 
 	lengths := []int{10, 100, 1_000, 10_000, 100_000}
 
-	b.Run("Identity", func(b *testing.B) {
+	for _, thisLength := range lengths {
 
-		var passThrough fslice.MapFunction[float64] = func(v float64, _ int, _ []float64) float64 {
-			return v
-		}
+		b.Run("Identity", func(b *testing.B) {
 
-		for _, thisLength := range lengths {
+			var passThrough fslice.MapFunction[float64] = func(v float64, _ int, _ []float64) float64 {
+				return v
+			}
 
 			inputSlice := generateFloats(thisLength)
 
@@ -74,7 +76,7 @@ func BenchmarkMap(b *testing.B) {
 				for i := 0; i < b.N; i++ {
 					thisBenchMarkResult = fslice.New(inputSlice).Map(passThrough).ToSlice()
 				}
-				benchMarkResult = thisBenchMarkResult
+				benchMarkFloatResult = thisBenchMarkResult
 			})
 
 			b.Run(fmt.Sprintf("Bare_%d", thisLength), func(b *testing.B) {
@@ -86,272 +88,94 @@ func BenchmarkMap(b *testing.B) {
 					}
 					thisBenchMarkResult = returnSlice
 				}
-				benchMarkResult = thisBenchMarkResult
+				benchMarkFloatResult = thisBenchMarkResult
 			})
 
-		}
+		})
 
-	})
+		b.Run("Fibonacci", func(b *testing.B) {
 
-	b.Run("Fibonacci", func(b *testing.B) {
+			for _, thisLength := range lengths {
 
-		for _, thisLength := range lengths {
-
-			inputSlice := generateFloats(thisLength)
-			var fib fslice.MapFunction[float64] = func(v float64, i int, arr []float64) float64 {
-				r := float64(0)
-				switch {
-				case i == 0, i == 1:
-					r = float64(i)
-				default:
-					r = arr[i-1] + arr[i-2]
+				inputSlice := generateFloats(thisLength)
+				var fib fslice.MapFunction[float64] = func(_ float64, i int, arr []float64) float64 {
+					r := float64(0)
+					switch {
+					case i == 0, i == 1:
+						r = float64(i)
+					default:
+						r = arr[i-1] + arr[i-2]
+					}
+					return r
 				}
-				return r
+
+				b.Run(fmt.Sprintf("Functional_%d", thisLength), func(b *testing.B) {
+					thisBenchMarkResult := make([]float64, 0, thisLength)
+
+					for i := 0; i < b.N; i++ {
+						thisBenchMarkResult = fslice.New(inputSlice).Map(fib).ToSlice()
+					}
+					benchMarkFloatResult = thisBenchMarkResult
+				})
+
+				b.Run(fmt.Sprintf("Bare_%d", thisLength), func(b *testing.B) {
+					thisBenchMarkResult := make([]float64, 0, thisLength)
+					for i := 0; i < b.N; i++ {
+						returnSlice := make([]float64, 0, thisLength)
+						for i, _ := range inputSlice {
+							switch {
+							case i == 0, i == 1:
+								returnSlice = append(returnSlice, float64(i))
+							default:
+								returnSlice = append(returnSlice, inputSlice[i-1]+inputSlice[i-2])
+							}
+						}
+						thisBenchMarkResult = returnSlice
+					}
+					benchMarkFloatResult = thisBenchMarkResult
+				})
+
+			}
+
+		})
+
+		b.Run("Convert some words to Uppercase", func(b *testing.B) {
+
+			inputSlice := generateLoremIpsum(thisLength)
+			var vowelsToUpper fslice.MapFunction[string] = func(word string, i int, arr []string) string {
+				re := regexp.MustCompile(`^[aeiouAEIOU]`)
+				if re.MatchString(word) {
+					word = strings.ToUpper(word)
+				}
+				return word
 			}
 
 			b.Run(fmt.Sprintf("Functional_%d", thisLength), func(b *testing.B) {
-				thisBenchMarkResult := make([]float64, 0, thisLength)
-
+				thisBenchMarkResult := make([]string, 0, thisLength)
 				for i := 0; i < b.N; i++ {
-					thisBenchMarkResult = fslice.New(inputSlice).Map(fib).ToSlice()
+					thisBenchMarkResult = fslice.New(inputSlice).Map(vowelsToUpper).ToSlice()
 				}
-				benchMarkResult = thisBenchMarkResult
+				benchMarkStringResult = thisBenchMarkResult
 			})
 
 			b.Run(fmt.Sprintf("Bare_%d", thisLength), func(b *testing.B) {
-				thisBenchMarkResult := make([]float64, 0, thisLength)
+				thisBenchMarkResult := make([]string, 0, thisLength)
 				for i := 0; i < b.N; i++ {
-					returnSlice := make([]float64, 0, thisLength)
-					for i, v := range inputSlice {
-						switch {
-						case i == 0, i == 1:
-							returnSlice = append(returnSlice, float64(i))
-						default:
-							returnSlice = append(returnSlice, inputSlice[i-1]+inputSlice[i-2])
+					thisBenchMarkResult := make([]string, 0, thisLength)
+					for _, word := range inputSlice {
+						re := regexp.MustCompile(`^[aeiouAEIOU]`)
+						if re.MatchString(word) {
+							thisBenchMarkResult = append(thisBenchMarkResult, strings.ToUpper(word))
+						} else {
+							thisBenchMarkResult = append(thisBenchMarkResult, word)
 						}
-						returnSlice = append(returnSlice, v)
 					}
-					thisBenchMarkResult = returnSlice
 				}
-				benchMarkResult = thisBenchMarkResult
+				benchMarkStringResult = thisBenchMarkResult
 			})
 
-		}
+		})
 
-	})
-
-	b.Run("Lorem Ipsum to Uppercase", func(b *testing.B) {
-
-	})
+	}
 
 }
-
-/*
-func BenchmarkMapIdentityFunctional_10(b *testing.B) {
-	floats, _ := generate10Floats()
-	var passThrough fslice.MapFunction[float64] = func(v float64, _ int, _ []float64) float64 {
-		return v
-	}
-	for n := 0; n < b.N; n++ {
-		benchMarkResult = fslice.New(floats).Map(square).UnderlyingSlice()
-	}
-}
-
-func BenchmarkMapIdentityBare_10(b *testing.B) {
-	const sliceLength = 10
-	floats, _ := generate10Floats()
-	for n := 0; n < b.N; n++ {
-		r := make([]float64, 0, sliceLength)
-		for _, val := range floats {
-			r = append(r, val)
-		}
-		benchMarkResult = r
-	}
-}
-
-func BenchmarkMapIdentityFunctional_100(b *testing.B) {
-	floats, _ := generate100Floats()
-	var passThrough fslice.MapFunction[float64] = func(v float64, _ int, _ []float64) float64 {
-		return v
-	}
-	for n := 0; n < b.N; n++ {
-		benchMarkResult = fslice.New(floats).Map(square).UnderlyingSlice()
-	}
-}
-
-func BenchmarkMapIdentityBare_100(b *testing.B) {
-	const sliceLength = 100
-	floats, _ := generate10Floats()
-	for n := 0; n < b.N; n++ {
-		r := make([]float64, 0, sliceLength)
-		for _, val := range floats {
-			r = append(r, val)
-		}
-		benchMarkResult = r
-	}
-}
-
-func BenchmarkMapIdentityFunctional_1000(b *testing.B) {
-	floats, _ := generate1000Floats()
-	var passThrough fslice.MapFunction[float64] = func(v float64, _ int, _ []float64) float64 {
-		return v
-	}
-	for n := 0; n < b.N; n++ {
-		benchMarkResult = fslice.New(floats).Map(square).UnderlyingSlice()
-	}
-}
-
-func BenchmarkMapIdentityBare_1000(b *testing.B) {
-	const sliceLength = 1000
-	floats, _ := generate10Floats()
-	for n := 0; n < b.N; n++ {
-		r := make([]float64, 0, sliceLength)
-		for _, val := range floats {
-			r = append(r, val)
-		}
-		benchMarkResult = r
-	}
-}
-
-func BenchmarkMapIdentityFunctional_10000(b *testing.B) {
-	floats, _ := generate10000Floats()
-	var passThrough fslice.MapFunction[float64] = func(v float64, _ int, _ []float64) float64 {
-		return v
-	}
-	for n := 0; n < b.N; n++ {
-		benchMarkResult = fslice.New(floats).Map(square).UnderlyingSlice()
-	}
-}
-
-func BenchmarkMapIdentityBare_10000(b *testing.B) {
-	const sliceLength = 10_000
-	floats, _ := generate10Floats()
-	for n := 0; n < b.N; n++ {
-		r := make([]float64, 0, sliceLength)
-		for _, val := range floats {
-			r = append(r, val)
-		}
-		benchMarkResult = r
-	}
-}
-
-func BenchmarkMapIncrementorFunctional_10(b *testing.B) {
-	floats, _ := generate10Floats()
-	var incrementor fslice.MapFunction[float64] = func(v float64, i int, arr []float64) float64 {
-		lastValue := float64(0)
-		if i > 0 {
-			lastValue = arr[i-1]
-		}
-		return lastValue + float64(i) + v
-	}
-	for n := 0; n < b.N; n++ {
-		benchMarkResult = fslice.New(floats).Map(incrementor).UnderlyingSlice()
-	}
-}
-
-func BenchmarkMapIncrementorFunctional_100(b *testing.B) {
-	floats, _ := generate100Floats()
-	var incrementor fslice.MapFunction[float64] = func(v float64, i int, arr []float64) float64 {
-		lastValue := float64(0)
-		if i > 0 {
-			lastValue = arr[i-1]
-		}
-		return lastValue + float64(i) + v
-	}
-	for n := 0; n < b.N; n++ {
-		benchMarkResult = fslice.New(floats).Map(incrementor).UnderlyingSlice()
-	}
-}
-
-func BenchmarkMapIncrementorFunctional_1000(b *testing.B) {
-	floats, _ := generate1000Floats()
-	var incrementor fslice.MapFunction[float64] = func(v float64, i int, arr []float64) float64 {
-		lastValue := float64(0)
-		if i > 0 {
-			lastValue = arr[i-1]
-		}
-		return lastValue + float64(i) + v
-	}
-	for n := 0; n < b.N; n++ {
-		benchMarkResult = fslice.New(floats).Map(incrementor).UnderlyingSlice()
-	}
-}
-
-func BenchmarkMapIncrementorFunctional_10000(b *testing.B) {
-	floats, _ := generate10000Floats()
-	var incrementor fslice.MapFunction[float64] = func(v float64, i int, arr []float64) float64 {
-		lastValue := float64(0)
-		if i > 0 {
-			lastValue = arr[i-1]
-		}
-		return lastValue + float64(i) + v
-	}
-	for n := 0; n < b.N; n++ {
-		benchMarkResult = fslice.New(floats).Map(incrementor).UnderlyingSlice()
-	}
-}
-
-func BenchmarkMapIncrementorBare_10(b *testing.B) {
-	const sliceLength = 10
-	floats, _ := generate10Floats()
-	for n := 0; n < b.N; n++ {
-		r := make([]float64, 0, sliceLength)
-		lastValue := float64(0)
-		for i, v := range floats {
-			if i > 0 {
-				lastValue = floats[i-1]
-			}
-			r = append(r, v+lastValue+float64(i))
-		}
-		benchMarkResult = r
-	}
-}
-
-func BenchmarkMapIncrementorBare_100(b *testing.B) {
-	const sliceLength = 100
-	floats, _ := generate100Floats()
-	for n := 0; n < b.N; n++ {
-		r := make([]float64, 0, sliceLength)
-		lastValue := float64(0)
-		for i, v := range floats {
-			if i > 0 {
-				lastValue = floats[i-1]
-			}
-			r = append(r, v+lastValue+float64(i))
-		}
-		benchMarkResult = r
-	}
-}
-
-func BenchmarkMapIncrementorBare_1000(b *testing.B) {
-	const sliceLength = 1000
-	floats, _ := generate1000Floats()
-	for n := 0; n < b.N; n++ {
-		r := make([]float64, 0, sliceLength)
-		lastValue := float64(0)
-		for i, v := range floats {
-			if i > 0 {
-				lastValue = floats[i-1]
-			}
-			r = append(r, v+lastValue+float64(i))
-		}
-		benchMarkResult = r
-	}
-}
-
-func BenchmarkMapIncrementorBare_10000(b *testing.B) {
-	const sliceLength = 10_000
-	floats, _ := generate10000Floats()
-	for n := 0; n < b.N; n++ {
-		r := make([]float64, 0, sliceLength)
-		lastValue := float64(0)
-		for i, v := range floats {
-			if i > 0 {
-				lastValue = floats[i-1]
-			}
-			r = append(r, v+lastValue+float64(i))
-		}
-		benchMarkResult = r
-	}
-}
-*/
