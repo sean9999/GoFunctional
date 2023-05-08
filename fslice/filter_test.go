@@ -1,12 +1,31 @@
 package fslice_test
 
 import (
+	"fmt"
+	"unicode/utf8"
+
 	"strings"
 
 	"testing"
 
 	"github.com/sean9999/GoFunctional/fslice"
 )
+
+func ExampleFslice_Filter() {
+
+	inputSlice := []string{"all", "your", "BASE", "are", "belong", "to", "US"}
+	noShouting := func(word string, _ int, _ []string) bool {
+		upperCaseWord := strings.ToUpper(word)
+		if word == upperCaseWord {
+			return false
+		}
+		return true
+	}
+	outputSlice := fslice.New(inputSlice).Filter(noShouting).ToSlice()
+	fmt.Println(outputSlice)
+	//	Output: [all your are belong to]
+
+}
 
 func TestFilter(t *testing.T) {
 
@@ -22,10 +41,10 @@ func TestFilter(t *testing.T) {
 
 	t.Run("Filter out every 3rd element", func(t *testing.T) {
 		inputSlice := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
-		var every3rd fslice.FilterFunction[int] = func(_ int, i int, _ []int) bool {
+		var outEvery3rd fslice.FilterFunction[int] = func(_ int, i int, _ []int) bool {
 			return !(i%3 == 2 && i >= 2)
 		}
-		got := fslice.New(inputSlice).Filter(every3rd).ToSlice()
+		got := fslice.New(inputSlice).Filter(outEvery3rd).ToSlice()
 		want := []int{1, 2, 4, 5, 7, 8, 10}
 		assertDeepEquals(t, got, want)
 	})
@@ -72,5 +91,99 @@ func TestFilter(t *testing.T) {
 		want := emptySlice
 		assertDeepEquals(t, got, want)
 	})
+
+}
+
+func BenchmarkFilter(b *testing.B) {
+
+	lengths := []int{10, 100, 1_000, 10_000, 100_000}
+
+	for _, thisLength := range lengths {
+
+		inputFloats := generateFloats(thisLength)
+		inputStrings := generateLoremIpsum(thisLength)
+
+		b.Run("Identity", func(b *testing.B) {
+			var passThrough fslice.FilterFunction[float64] = func(v float64, _ int, _ []float64) bool {
+				return true
+			}
+			b.Run(fmt.Sprintf("Functional_%d", thisLength), func(b *testing.B) {
+				thisBenchMarkResult := make([]float64, 0, thisLength)
+				for i := 0; i < b.N; i++ {
+					thisBenchMarkResult = fslice.New(inputFloats).Filter(passThrough)
+				}
+				benchMarkFloatResult = thisBenchMarkResult
+			})
+			b.Run(fmt.Sprintf("Bare_%d", thisLength), func(b *testing.B) {
+				thisBenchMarkResult := make([]float64, 0, thisLength)
+				for i := 0; i < b.N; i++ {
+					returnSlice := make([]float64, 0, thisLength)
+					for _, v := range inputFloats {
+						returnSlice = append(returnSlice, v)
+					}
+					thisBenchMarkResult = returnSlice
+				}
+				benchMarkFloatResult = thisBenchMarkResult
+			})
+		})
+
+		b.Run("Remove multiples of 5", func(b *testing.B) {
+			var outFives fslice.FilterFunction[float64] = func(v float64, _ int, _ []float64) bool {
+				return (int64(v)%5 == 0)
+			}
+			b.Run(fmt.Sprintf("Functional_%d", thisLength), func(b *testing.B) {
+				thisBenchMarkResult := make([]float64, 0, thisLength)
+				for i := 0; i < b.N; i++ {
+					thisBenchMarkResult = fslice.New(inputFloats).Filter(outFives)
+				}
+				benchMarkFloatResult = thisBenchMarkResult
+			})
+			b.Run(fmt.Sprintf("Bare_%d", thisLength), func(b *testing.B) {
+				thisBenchMarkResult := make([]float64, 0, thisLength)
+				for i := 0; i < b.N; i++ {
+					thisBenchMarkResult = []float64{}
+					for _, n := range inputFloats {
+						if int64(n)%5 != 0 {
+							thisBenchMarkResult = append(thisBenchMarkResult, n)
+						}
+					}
+				}
+				benchMarkFloatResult = thisBenchMarkResult
+			})
+		})
+
+		b.Run("Omit 4-letter words", func(b *testing.B) {
+			no4LetterWords := func(word string, _ int, _ []string) bool {
+				return utf8.RuneCountInString(word) != 4
+			}
+			b.Run(fmt.Sprintf("Functional_%d", thisLength), func(t *testing.B) {
+				thisBenchMarkResult := make([]string, 0, thisLength)
+				for i := 0; i < b.N; i++ {
+					thisBenchMarkResult = fslice.New(inputStrings).Filter(no4LetterWords).ToSlice()
+				}
+				benchMarkStringResult = thisBenchMarkResult
+			})
+		})
+
+		b.Run("remove duplicate words", func(b *testing.B) {
+			noDuplicate := func(thisWord string, i int, arr []string) bool {
+				ok := true
+				for _, thatWord := range arr[:i] {
+					if thisWord == thatWord {
+						ok = false
+						break
+					}
+				}
+				return ok
+			}
+			b.Run(fmt.Sprintf("Functional_%d", thisLength), func(t *testing.B) {
+				thisBenchMarkResult := make([]string, 0, thisLength)
+				for i := 0; i < b.N; i++ {
+					thisBenchMarkResult = fslice.New(inputStrings).Filter(noDuplicate).ToSlice()
+				}
+				benchMarkStringResult = thisBenchMarkResult
+			})
+		})
+	}
 
 }

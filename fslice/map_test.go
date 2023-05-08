@@ -20,6 +20,33 @@ func assertMapDeepEquals[T comparable](t testing.TB, inputSlice []T, want []T, m
 	}
 }
 
+func ExampleFslice_Map() {
+
+	// square the numbers
+	squared := func(n int, _ int, _ []int) int {
+		return n * n
+	}
+	squares := fslice.New([]int{1, 2, 3, 4, 5}).Map(squared).ToSlice()
+
+	// convert every other word to SHOUTCASE
+	lowerBase := []string{"all", "your", "base", "are", "belong", "to", "us"}
+	shoutCaseEveryOther := func(word string, i int, _ []string) string {
+		if i%2 == 1 {
+			word = strings.ToUpper(word)
+		}
+		return word
+	}
+	shoutyBase := fslice.New(lowerBase).Map(shoutCaseEveryOther).ToSlice()
+
+	fmt.Println(squares)
+	fmt.Println(shoutyBase)
+
+	// Output:
+	// [1 4 9 16 25]
+	// [all YOUR base ARE belong TO us]
+
+}
+
 func TestMap(t *testing.T) {
 
 	t.Run("Five Integers Doubled", func(t *testing.T) {
@@ -52,15 +79,14 @@ func TestMap(t *testing.T) {
 
 }
 
-// prevent compiler from throughing away mem between results
-var benchMarkFloatResult []float64
-var benchMarkStringResult []string
-
 func BenchmarkMap(b *testing.B) {
 
 	lengths := []int{10, 100, 1_000, 10_000, 100_000}
 
 	for _, thisLength := range lengths {
+
+		inputFloats := generateFloats(thisLength)
+		inputStrings := generateLoremIpsum(thisLength)
 
 		b.Run("Identity", func(b *testing.B) {
 
@@ -68,13 +94,11 @@ func BenchmarkMap(b *testing.B) {
 				return v
 			}
 
-			inputSlice := generateFloats(thisLength)
-
 			b.Run(fmt.Sprintf("Functional_%d", thisLength), func(b *testing.B) {
 				thisBenchMarkResult := make([]float64, 0, thisLength)
 
 				for i := 0; i < b.N; i++ {
-					thisBenchMarkResult = fslice.New(inputSlice).Map(passThrough).ToSlice()
+					thisBenchMarkResult = fslice.New(inputFloats).Map(passThrough).ToSlice()
 				}
 				benchMarkFloatResult = thisBenchMarkResult
 			})
@@ -83,7 +107,7 @@ func BenchmarkMap(b *testing.B) {
 				thisBenchMarkResult := make([]float64, 0, thisLength)
 				for i := 0; i < b.N; i++ {
 					returnSlice := make([]float64, 0, thisLength)
-					for _, v := range inputSlice {
+					for _, v := range inputFloats {
 						returnSlice = append(returnSlice, v)
 					}
 					thisBenchMarkResult = returnSlice
@@ -95,53 +119,47 @@ func BenchmarkMap(b *testing.B) {
 
 		b.Run("Fibonacci", func(b *testing.B) {
 
-			for _, thisLength := range lengths {
-
-				inputSlice := generateFloats(thisLength)
-				var fib fslice.MapFunction[float64] = func(_ float64, i int, arr []float64) float64 {
-					r := float64(0)
-					switch {
-					case i == 0, i == 1:
-						r = float64(i)
-					default:
-						r = arr[i-1] + arr[i-2]
-					}
-					return r
+			fib := func(_ float64, i int, arr []float64) float64 {
+				r := float64(0)
+				switch {
+				case i == 0, i == 1:
+					r = float64(i)
+				default:
+					r = arr[i-1] + arr[i-2]
 				}
-
-				b.Run(fmt.Sprintf("Functional_%d", thisLength), func(b *testing.B) {
-					thisBenchMarkResult := make([]float64, 0, thisLength)
-
-					for i := 0; i < b.N; i++ {
-						thisBenchMarkResult = fslice.New(inputSlice).Map(fib).ToSlice()
-					}
-					benchMarkFloatResult = thisBenchMarkResult
-				})
-
-				b.Run(fmt.Sprintf("Bare_%d", thisLength), func(b *testing.B) {
-					thisBenchMarkResult := make([]float64, 0, thisLength)
-					for i := 0; i < b.N; i++ {
-						returnSlice := make([]float64, 0, thisLength)
-						for i, _ := range inputSlice {
-							switch {
-							case i == 0, i == 1:
-								returnSlice = append(returnSlice, float64(i))
-							default:
-								returnSlice = append(returnSlice, inputSlice[i-1]+inputSlice[i-2])
-							}
-						}
-						thisBenchMarkResult = returnSlice
-					}
-					benchMarkFloatResult = thisBenchMarkResult
-				})
-
+				return r
 			}
+
+			b.Run(fmt.Sprintf("Functional_%d", thisLength), func(b *testing.B) {
+				thisBenchMarkResult := make([]float64, 0, thisLength)
+
+				for i := 0; i < b.N; i++ {
+					thisBenchMarkResult = fslice.New(inputFloats).Map(fib).ToSlice()
+				}
+				benchMarkFloatResult = thisBenchMarkResult
+			})
+
+			b.Run(fmt.Sprintf("Bare_%d", thisLength), func(b *testing.B) {
+				thisBenchMarkResult := make([]float64, 0, thisLength)
+				for i := 0; i < b.N; i++ {
+					returnSlice := make([]float64, 0, thisLength)
+					for j := range inputFloats {
+						switch {
+						case j == 0, j == 1:
+							returnSlice = append(returnSlice, float64(i))
+						default:
+							returnSlice = append(returnSlice, inputFloats[j-1]+inputFloats[j-2])
+						}
+					}
+					thisBenchMarkResult = returnSlice
+				}
+				benchMarkFloatResult = thisBenchMarkResult
+			})
 
 		})
 
 		b.Run("Convert some words to Uppercase", func(b *testing.B) {
 
-			inputSlice := generateLoremIpsum(thisLength)
 			var vowelsToUpper fslice.MapFunction[string] = func(word string, i int, arr []string) string {
 				re := regexp.MustCompile(`^[aeiouAEIOU]`)
 				if re.MatchString(word) {
@@ -153,7 +171,7 @@ func BenchmarkMap(b *testing.B) {
 			b.Run(fmt.Sprintf("Functional_%d", thisLength), func(b *testing.B) {
 				thisBenchMarkResult := make([]string, 0, thisLength)
 				for i := 0; i < b.N; i++ {
-					thisBenchMarkResult = fslice.New(inputSlice).Map(vowelsToUpper).ToSlice()
+					thisBenchMarkResult = fslice.New(inputStrings).Map(vowelsToUpper).ToSlice()
 				}
 				benchMarkStringResult = thisBenchMarkResult
 			})
@@ -162,7 +180,7 @@ func BenchmarkMap(b *testing.B) {
 				thisBenchMarkResult := make([]string, 0, thisLength)
 				for i := 0; i < b.N; i++ {
 					thisBenchMarkResult := make([]string, 0, thisLength)
-					for _, word := range inputSlice {
+					for _, word := range inputStrings {
 						re := regexp.MustCompile(`^[aeiouAEIOU]`)
 						if re.MatchString(word) {
 							thisBenchMarkResult = append(thisBenchMarkResult, strings.ToUpper(word))
