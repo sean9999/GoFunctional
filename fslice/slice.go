@@ -10,10 +10,16 @@ type MethodSet[T comparable] interface {
 	Some(SomeFunction[T]) bool
 	Every(EveryFunction[T]) bool
 	Includes(T) bool
-	Underlying() []T
+	ToSlice() []T
 }
 
 // constructor
-func New[T comparable](inputSlice []T) Fslice[T] {
-	return Fslice[T](inputSlice)
+func New[T comparable](inputSlice []T) MethodSet[T] {
+	functionalSlice := Fslice[T](inputSlice)
+	return functionalSlice
+}
+
+// return the underlying slice
+func (fs Fslice[T]) ToSlice() []T {
+	return fs
 }

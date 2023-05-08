@@ -8,6 +8,13 @@ import (
 	lorem "github.com/drhodes/golorem"
 )
 
+func assertScalars[T comparable](t testing.TB, got T, want T) {
+	t.Helper()
+	if got != want {
+		t.Errorf("wanted %#v but got %#v", want, got)
+	}
+}
+
 func assertDeepEquals[T comparable](t testing.TB, got []T, want []T) {
 	t.Helper()
 	ok := reflect.DeepEqual(want, got)
@@ -43,3 +50,7 @@ func generateLoremIpsum(numwords int) []string {
 	text := lorem.Sentence(numwords, numwords)
 	return strings.Split(text, " ")
 }
+
+// prevent compiler from throughing away mem between results
+var benchMarkFloatResult []float64
+var benchMarkStringResult []string
