@@ -1,6 +1,6 @@
 package fslice
 
-type EveryFunction[T any] func(v T, i int, arr []T) bool
+type EveryFunction[T comparable] func(v T, i int, arr []T) bool
 
 func (fs Fslice[T]) Every(fn EveryFunction[T]) bool {
 	r := true

@@ -13,7 +13,7 @@ func ExampleFslice_Every() {
 	isEven := func(v int, _ int, _ []int) bool {
 		return (v%2 == 0)
 	}
-	isTrueForEveryElement := fslice.New(inputSlice).Every(isEven)
+	isTrueForEveryElement := fslice.From(inputSlice).Every(isEven)
 	fmt.Println(isTrueForEveryElement)
 	//	Output: false
 
@@ -26,7 +26,7 @@ func TestEvery(t *testing.T) {
 		evenInteger := func(v int, _ int, _ []int) bool {
 			return (v%2 == 0)
 		}
-		got := fslice.New(inputSlice).Every(evenInteger)
+		got := fslice.From(inputSlice).Every(evenInteger)
 		want := false
 		assertScalars(t, got, want)
 	})
@@ -36,7 +36,7 @@ func TestEvery(t *testing.T) {
 		onlyEvenIntegers := func(v int, _ int, _ []int) bool {
 			return (v < 1000)
 		}
-		got := fslice.New(inputSlice).Every(onlyEvenIntegers)
+		got := fslice.From(inputSlice).Every(onlyEvenIntegers)
 		want := true
 		assertScalars(t, got, want)
 	})

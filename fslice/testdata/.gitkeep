@@ -1,0 +1,1 @@
+Run bin/generate-test-data to populate this folder, so that benchmarks can run with deterministic input 

@@ -1,6 +1,7 @@
 package fslice_test
 
 import (
+	"fmt"
 	"reflect"
 	"strings"
 	"testing"
@@ -8,10 +9,14 @@ import (
 	lorem "github.com/drhodes/golorem"
 )
 
+func formatTestOutput[T any](got T, want T) string {
+	return fmt.Sprintf("\nwanted:  \t%#v\nbut got:\t%#v", want, got)
+}
+
 func assertScalars[T comparable](t testing.TB, got T, want T) {
 	t.Helper()
 	if got != want {
-		t.Errorf("wanted %#v but got %#v", want, got)
+		t.Errorf(formatTestOutput[T](got, want))
 	}
 }
 
@@ -19,7 +24,7 @@ func assertDeepEquals[T comparable](t testing.TB, got []T, want []T) {
 	t.Helper()
 	ok := reflect.DeepEqual(want, got)
 	if !ok {
-		t.Errorf("wanted %#v but got %#v", want, got)
+		t.Errorf(formatTestOutput[[]T](got, want))
 	}
 }
 
@@ -51,6 +56,6 @@ func generateLoremIpsum(numwords int) []string {
 	return strings.Split(text, " ")
 }
 
-// prevent compiler from throughing away mem between results
+// dissuade compiler from improper garbage collecting
 var benchMarkFloatResult []float64
 var benchMarkStringResult []string

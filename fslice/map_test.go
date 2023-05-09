@@ -13,7 +13,7 @@ import (
 
 func assertMapDeepEquals[T comparable](t testing.TB, inputSlice []T, want []T, mapFn fslice.MapFunction[T]) {
 	t.Helper()
-	got := fslice.New(inputSlice).Map(mapFn).ToSlice()
+	got := fslice.From(inputSlice).Map(mapFn).ToSlice()
 	slicesMatch := reflect.DeepEqual(want, got)
 	if !slicesMatch {
 		t.Errorf("wanted %#v but got %#v", want, got)
@@ -26,7 +26,7 @@ func ExampleFslice_Map() {
 	squared := func(n int, _ int, _ []int) int {
 		return n * n
 	}
-	squares := fslice.New([]int{1, 2, 3, 4, 5}).Map(squared).ToSlice()
+	squares := fslice.From([]int{1, 2, 3, 4, 5}).Map(squared).ToSlice()
 
 	// convert every other word to SHOUTCASE
 	lowerBase := []string{"all", "your", "base", "are", "belong", "to", "us"}
@@ -36,7 +36,7 @@ func ExampleFslice_Map() {
 		}
 		return word
 	}
-	shoutyBase := fslice.New(lowerBase).Map(shoutCaseEveryOther).ToSlice()
+	shoutyBase := fslice.From(lowerBase).Map(shoutCaseEveryOther).ToSlice()
 
 	fmt.Println(squares)
 	fmt.Println(shoutyBase)
@@ -52,7 +52,7 @@ func TestMap(t *testing.T) {
 	t.Run("Five Integers Doubled", func(t *testing.T) {
 		doubleThem := fslice.MapFunction[int](func(v int, _ int, _ []int) int { return v * 2 })
 		fiveIntegers := []int{1, 2, 3, 4, 5}
-		exptectedResult := []int{2, 4, 6, 8, 10}
+		exptectedResult := []int{2, 4, 6, 8, 10, 11}
 		assertMapDeepEquals(t, fiveIntegers, exptectedResult, doubleThem)
 	})
 
@@ -98,7 +98,7 @@ func BenchmarkMap(b *testing.B) {
 				thisBenchMarkResult := make([]float64, 0, thisLength)
 
 				for i := 0; i < b.N; i++ {
-					thisBenchMarkResult = fslice.New(inputFloats).Map(passThrough).ToSlice()
+					thisBenchMarkResult = fslice.From(inputFloats).Map(passThrough).ToSlice()
 				}
 				benchMarkFloatResult = thisBenchMarkResult
 			})
@@ -134,7 +134,7 @@ func BenchmarkMap(b *testing.B) {
 				thisBenchMarkResult := make([]float64, 0, thisLength)
 
 				for i := 0; i < b.N; i++ {
-					thisBenchMarkResult = fslice.New(inputFloats).Map(fib).ToSlice()
+					thisBenchMarkResult = fslice.From(inputFloats).Map(fib).ToSlice()
 				}
 				benchMarkFloatResult = thisBenchMarkResult
 			})
@@ -171,7 +171,7 @@ func BenchmarkMap(b *testing.B) {
 			b.Run(fmt.Sprintf("Functional_%d", thisLength), func(b *testing.B) {
 				thisBenchMarkResult := make([]string, 0, thisLength)
 				for i := 0; i < b.N; i++ {
-					thisBenchMarkResult = fslice.New(inputStrings).Map(vowelsToUpper).ToSlice()
+					thisBenchMarkResult = fslice.From(inputStrings).Map(vowelsToUpper).ToSlice()
 				}
 				benchMarkStringResult = thisBenchMarkResult
 			})

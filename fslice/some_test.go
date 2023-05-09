@@ -16,7 +16,7 @@ func ExampleFslice_Some() {
 	isMultipleOf3 := func(v int, _ int, _ []int) bool {
 		return (v%3 == 0 && v >= 3)
 	}
-	result := fslice.New(inputSlice).Some(isMultipleOf3)
+	result := fslice.From(inputSlice).Some(isMultipleOf3)
 	fmt.Println(result)
 	// Output: true
 
@@ -29,7 +29,7 @@ func TestSome(t *testing.T) {
 		isMultipleOf3 := func(v int, _ int, _ []int) bool {
 			return (v%3 == 0 && v >= 3)
 		}
-		got := fslice.New(inputSlice).Some(isMultipleOf3)
+		got := fslice.From(inputSlice).Some(isMultipleOf3)
 		want := true
 		if got != want {
 			t.Errorf("isMultipleOf3 should have returned %v for at least one element in %v", want, inputSlice)
@@ -41,7 +41,7 @@ func TestSome(t *testing.T) {
 		var every3rd fslice.FilterFunction[int] = func(_ int, i int, _ []int) bool {
 			return !(i%3 == 2 && i >= 2)
 		}
-		got := fslice.New(inputSlice).Filter(every3rd).ToSlice()
+		got := fslice.From(inputSlice).Filter(every3rd).ToSlice()
 		want := []int{1, 2, 4, 5, 7, 8, 10}
 		assertDeepEquals(t, got, want)
 	})
@@ -56,7 +56,7 @@ func TestSome(t *testing.T) {
 			return false
 		}
 		want := true
-		got := fslice.New(inputSlice).Some(isAllCaps)
+		got := fslice.From(inputSlice).Some(isAllCaps)
 		if got != want {
 			t.Errorf("isAllCaps should have returned %v for at least one element in %v", want, inputSlice)
 		}
@@ -67,7 +67,7 @@ func TestSome(t *testing.T) {
 			return IsPrime(n)
 		}
 		inputSlice := []int{0, 1, 2, 11, 13, 17, 23, 29, 31, 37, 43, 53, 61, 79, 87, 91, 101, 103, 107, 113, 433, 761, 25519, 65531}
-		got := fslice.New(inputSlice).Some(isPrime)
+		got := fslice.From(inputSlice).Some(isPrime)
 		want := true
 		if got != want {
 			t.Errorf("inputSlice definitely contains a prime number")
@@ -79,7 +79,7 @@ func TestSome(t *testing.T) {
 			return false
 		}
 		emptySlice := []int{}
-		got := fslice.New(emptySlice).Some(cull)
+		got := fslice.From(emptySlice).Some(cull)
 		want := true
 		if got != want {
 			t.Errorf("Vacous case should be true")
@@ -90,7 +90,7 @@ func TestSome(t *testing.T) {
 			return true
 		}
 		emptySlice := []float32{}
-		got := fslice.New(emptySlice).Some(passThrough)
+		got := fslice.From(emptySlice).Some(passThrough)
 		want := true
 		if got != want {
 			t.Errorf("Vacous case should be true")
