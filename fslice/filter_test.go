@@ -14,16 +14,26 @@ import (
 
 func ExampleFslice_Filter() {
 
+	//	only give me the even numbers
+	numbers := []int{1, 2, 3, 4, 5, 6, 7, 8, 9}
+	onlyEven := func(n int, i int, arr []int) bool {
+		return (n%2 == 0)
+	}
+	filteredNumbers := fslice.From(numbers).Filter(onlyEven).ToSlice()
+
 	// remove SHOUTCASE words
 	inputSlice := []string{"all", "your", "BASE", "are", "belong", "to", "US"}
 	noShouting := func(word string, _ int, _ []string) bool {
 		upperCaseWord := strings.ToUpper(word)
 		return (word != upperCaseWord)
 	}
-	outputSlice := fslice.From(inputSlice).Filter(noShouting).ToSlice()
+	wordsWithoutShouting := fslice.From(inputSlice).Filter(noShouting).ToSlice()
 
-	fmt.Println(outputSlice)
-	//	Output: [all your are belong to]
+	fmt.Println(filteredNumbers)
+	fmt.Println(wordsWithoutShouting)
+	// Output:
+	// [2 4 6 8]
+	// [all your are belong to]
 
 }
 
