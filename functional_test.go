@@ -24,7 +24,7 @@ func Example() {
 
 func ExampleFsliceFrom() {
 
-	// these methods are functionally equivilant
+	// these methods are functionally equivalent
 
 	// import functional "github.com/sean9999/GoFunctional"
 	x := functional.FsliceFrom([]int{1, 2, 3})

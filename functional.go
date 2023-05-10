@@ -10,15 +10,12 @@
 // While for most use-cases Go Functional is _essentially_ a zero-cost abstraction, it is not _fundamentally_ so.
 // There are use cases where the trade-off between expressiveness and performance is not acceptable.
 // Use the right tool for the right job. Run the included benchmarks for
-// performance characteristics.
+// performance characteristics, or view Go's cyclomatic complexity here: [https://goreportcard.com/report/github.com/sean9999/GoFunctional]
 package functional
 
 import (
 	"github.com/sean9999/GoFunctional/fslice"
 )
-
-// Version is the version of the module Go Functional [github.com/sean9999/GoFunctional]
-const Version = "v0.0.4"
 
 // convenience for [fslice.From]
 func FsliceFrom[T comparable](inputSlice []T) fslice.MethodSet[T] {
