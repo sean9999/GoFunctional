@@ -1,6 +1,6 @@
 # Go Functional
 
-Go Functional provides a Go package called Functional, which provides Functional Programming capabilities to Go's data types
+Go Functional provides a Go package called `functional`, which offers Functional Programming capabilities to some of Gos data types, such as slice and maps.
 
 ## Design Goals
 
@@ -10,7 +10,7 @@ Go Functional provides a Go package called Functional, which provides Functional
 - well tested
 - well benchmarked, so that time and space complexity can be known and documented
 
-## Functional.Slice
+## Functional.Fslice
 
 Provides certain methods common to Functional Programming for operating on slices. Methods that return a slice are chainable.
 

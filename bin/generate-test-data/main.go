@@ -5,12 +5,10 @@ import (
 	"os"
 	"strings"
 
+	functional "github.com/sean9999/GoFunctional"
+
 	lorem "github.com/drhodes/golorem"
 )
-
-const loremIpsumFilePath = "fslice/testdata/lorem_ipsum_%d_words.txt"
-
-var loremIpsumLengths = []int{10, 100, 1_000, 10_000, 100_000}
 
 func loremIpsumSlice(numwords int) []string {
 	text := lorem.Sentence(numwords, numwords)
@@ -18,8 +16,8 @@ func loremIpsumSlice(numwords int) []string {
 }
 
 func generateLoremIpsum() {
-	for _, thisLength := range loremIpsumLengths {
-		thisFileName := fmt.Sprintf(loremIpsumFilePath, thisLength)
+	for _, thisLength := range functional.TestSuite.LoremIpsumLengths {
+		thisFileName := fmt.Sprintf(functional.TestSuite.LoremIpsumFilePath, thisLength)
 		thisHandle, err := os.Create(thisFileName)
 		if err == nil {
 			inputStrings := loremIpsumSlice(thisLength)

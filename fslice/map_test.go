@@ -8,6 +8,7 @@ import (
 	"regexp"
 	"testing"
 
+	functional "github.com/sean9999/GoFunctional"
 	"github.com/sean9999/GoFunctional/fslice"
 )
 
@@ -52,7 +53,7 @@ func TestMap(t *testing.T) {
 	t.Run("Five Integers Doubled", func(t *testing.T) {
 		doubleThem := fslice.MapFunction[int](func(v int, _ int, _ []int) int { return v * 2 })
 		fiveIntegers := []int{1, 2, 3, 4, 5}
-		exptectedResult := []int{2, 4, 6, 8, 10, 11}
+		exptectedResult := []int{2, 4, 6, 8, 10}
 		assertMapDeepEquals(t, fiveIntegers, exptectedResult, doubleThem)
 	})
 
@@ -81,12 +82,14 @@ func TestMap(t *testing.T) {
 
 func BenchmarkMap(b *testing.B) {
 
-	lengths := []int{10, 100, 1_000, 10_000, 100_000}
-
-	for _, thisLength := range lengths {
+	for _, thisLength := range functional.TestSuite.LoremIpsumLengths {
 
 		inputFloats := generateFloats(thisLength)
-		inputStrings := generateLoremIpsum(thisLength)
+		inputText, err := functional.TestSuite.LoadLoremIpsum(thisLength)
+		if err != nil {
+			panic(err)
+		}
+		inputStrings := strings.Split(strings.Trim(inputText, " "), ",")
 
 		b.Run("Identity", func(b *testing.B) {
 

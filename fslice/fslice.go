@@ -1,3 +1,4 @@
+// Package fslice implements a set of methods (see [MethodSet]) for operating on slices in a Functional Programming way.
 package fslice
 
 // Fslice is a slice with helpful methods in the Functional Programming style
@@ -15,17 +16,15 @@ type MethodSet[T comparable] interface {
 	ToSlice() []T
 }
 
-// From is a constructor. It wraps an existing slice,
+// From is a constructor. It wraps an existing slice
 // returning an Fslice[T] satisfying MethodSet[T]
 func From[T comparable](inputSlice []T) MethodSet[T] {
-	functionalSlice := Fslice[T](inputSlice)
-	return functionalSlice
+	return Fslice[T](inputSlice)
 }
 
-// New is an initializer. It pre-allocates a slice with size and capacity set, and wraps it,
-// returning an Fslice[T] satisfying MethodSet[T]
+// New is an initializer. It pre-allocates a zeroed slice
+// returning an [Fslice] satisfying [MethodSet]
 func New[T comparable](size, capacity int) MethodSet[T] {
-	// pre-allocate
 	return Fslice[T](make([]T, size, capacity))
 }
 

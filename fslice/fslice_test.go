@@ -3,10 +3,7 @@ package fslice_test
 import (
 	"fmt"
 	"reflect"
-	"strings"
 	"testing"
-
-	lorem "github.com/drhodes/golorem"
 )
 
 func formatTestOutput[T any](got T, want T) string {
@@ -51,11 +48,6 @@ func generateFloats(howmany int) []float64 {
 	return r
 }
 
-func generateLoremIpsum(numwords int) []string {
-	text := lorem.Sentence(numwords, numwords)
-	return strings.Split(text, " ")
-}
-
-// dissuade compiler from improper garbage collecting
+// dissuade compiler from improper garbage collection
 var benchMarkFloatResult []float64
 var benchMarkStringResult []string

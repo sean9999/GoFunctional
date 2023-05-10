@@ -8,20 +8,20 @@ import (
 
 	"testing"
 
+	functional "github.com/sean9999/GoFunctional"
 	"github.com/sean9999/GoFunctional/fslice"
 )
 
 func ExampleFslice_Filter() {
 
+	// remove SHOUTCASE words
 	inputSlice := []string{"all", "your", "BASE", "are", "belong", "to", "US"}
 	noShouting := func(word string, _ int, _ []string) bool {
 		upperCaseWord := strings.ToUpper(word)
-		if word == upperCaseWord {
-			return false
-		}
-		return true
+		return (word != upperCaseWord)
 	}
 	outputSlice := fslice.From(inputSlice).Filter(noShouting).ToSlice()
+
 	fmt.Println(outputSlice)
 	//	Output: [all your are belong to]
 
@@ -96,12 +96,14 @@ func TestFilter(t *testing.T) {
 
 func BenchmarkFilter(b *testing.B) {
 
-	lengths := []int{10, 100, 1_000, 10_000, 100_000}
-
-	for _, thisLength := range lengths {
+	for _, thisLength := range functional.TestSuite.LoremIpsumLengths {
 
 		inputFloats := generateFloats(thisLength)
-		inputStrings := generateLoremIpsum(thisLength)
+		inputText, err := functional.TestSuite.LoadLoremIpsum(thisLength)
+		if err != nil {
+			panic(err)
+		}
+		inputStrings := strings.Split(strings.Trim(inputText, " "), ",")
 
 		b.Run("Identity", func(b *testing.B) {
 			var passThrough fslice.FilterFunction[float64] = func(v float64, _ int, _ []float64) bool {
@@ -118,9 +120,7 @@ func BenchmarkFilter(b *testing.B) {
 				thisBenchMarkResult := make([]float64, 0, thisLength)
 				for i := 0; i < b.N; i++ {
 					returnSlice := make([]float64, 0, thisLength)
-					for _, v := range inputFloats {
-						returnSlice = append(returnSlice, v)
-					}
+					returnSlice = append(returnSlice, inputFloats...)
 					thisBenchMarkResult = returnSlice
 				}
 				benchMarkFloatResult = thisBenchMarkResult

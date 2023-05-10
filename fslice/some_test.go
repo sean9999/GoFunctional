@@ -11,12 +11,13 @@ import (
 
 func ExampleFslice_Some() {
 
-	// at least one element is a multiple of 3
-	inputSlice := []int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12}
+	// at least one of these numbers is a multiple of 3
+	inputSlice := []int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11}
 	isMultipleOf3 := func(v int, _ int, _ []int) bool {
 		return (v%3 == 0 && v >= 3)
 	}
 	result := fslice.From(inputSlice).Some(isMultipleOf3)
+
 	fmt.Println(result)
 	// Output: true
 

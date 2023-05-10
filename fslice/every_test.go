@@ -9,12 +9,14 @@ import (
 
 func ExampleFslice_Every() {
 
+	//	is every element of this slice even?
 	inputSlice := []int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12}
 	isEven := func(v int, _ int, _ []int) bool {
 		return (v%2 == 0)
 	}
-	isTrueForEveryElement := fslice.From(inputSlice).Every(isEven)
-	fmt.Println(isTrueForEveryElement)
+	answer := fslice.From(inputSlice).Every(isEven)
+
+	fmt.Println(answer)
 	//	Output: false
 
 }
