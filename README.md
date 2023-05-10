@@ -1,6 +1,6 @@
 # Go Functional
 
-Go Functional provides a Go package called `functional`, which contain sub-packages, which offer Functional Programming capabilities to some of Go's data types, such as slice and maps.
+Go Functional provides a Go package called `functional`, which contains sub-packages, which offer Functional Programming capabilities to some of Go's data types, such as slice and maps.
 
 ![Go Functional](chariot.jpg)
 
