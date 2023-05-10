@@ -18,7 +18,7 @@ import (
 )
 
 // Version is the version of the module Go Functional [github.com/sean9999/GoFunctional]
-const Version = "v0.0.3"
+const Version = "v0.0.4"
 
 // convenience for [fslice.From]
 func FsliceFrom[T comparable](inputSlice []T) fslice.MethodSet[T] {
