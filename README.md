@@ -4,6 +4,14 @@ Go Functional provides a Go package called `functional`, which contains sub-pack
 
 ![Go Functional](chariot.jpg)
 
+[![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/sean9999/GoFunctional/graphs/commit-activity)
+
+[![Go Reference](https://pkg.go.dev/badge/github.com/sean9999/GoFunctional.svg)](https://pkg.go.dev/github.com/sean9999/GoFunctional)
+
+[![Go Report Card](https://goreportcard.com/badge/github.com/sean9999/GoFunctional)](https://goreportcard.com/report/github.com/sean9999/GoFunctional)
+
+[![Go version](https://img.shields.io/github/go-mod/go-version/sean9999/GoFunctional.svg)](https://github.com/sean9999/GoFunctional)
+
 ## Design Goals
 
 - near-zero cost abstraction, with allowances made for readability and flexibility
