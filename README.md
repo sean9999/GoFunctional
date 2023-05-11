@@ -46,7 +46,7 @@ isPrime := func(val int, _ int, _ []int) bool {
 }
 
 //  a MapFunction that squares a number
-square := func() {
+square := func(val int, _ int, _ []int) int {
     return val * val
 }
 
@@ -79,7 +79,7 @@ fmt.Println(outputNums)
 
 ## What's Next?
 
-A similar set of methods should be for maps, which will be under a package called Fmap. There might be an opportunity to do something for structs as well. We'll see.
+A similar set of methods for maps, which will be under a package called Fmap. There might be an opportunity to do something for structs as well. We'll see.
 
 A bothersome limitation of Go Functional is the inability to use different types. I'd like to find an elegant solution to that, leveraging the concept of a Functor.
 
@@ -87,3 +87,6 @@ Benchmarks should be plotted so that performance characteristics can be seen vis
 
 Some system to measure the rate at which cyclomatic complexity increases as the chain of methods increases, would be useful.
 
+Pull requests welcome.
+
+https://www.seanmacdonald.ca/
