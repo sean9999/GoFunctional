@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/fxtlabs/primes"
-	functional "github.com/sean9999/GoFunctional"
 	"github.com/sean9999/GoFunctional/fslice"
 )
 
@@ -19,20 +18,5 @@ func Example() {
 	})
 	fmt.Println(outputNumbers)
 	// Output: [4 9 25 49 121]
-
-}
-
-func ExampleFsliceFrom() {
-
-	// these methods are functionally equivalent
-
-	// import functional "github.com/sean9999/GoFunctional"
-	x := functional.FsliceFrom([]int{1, 2, 3})
-
-	// import "github.com/sean9999/GoFunctional/fslice"
-	y := fslice.From([]int{1, 2, 3})
-
-	fmt.Println(x, y)
-	// Output: [1 2 3] [1 2 3]
 
 }

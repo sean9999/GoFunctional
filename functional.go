@@ -12,19 +12,3 @@
 // Use the right tool for the right job. Run the included benchmarks for
 // performance characteristics, or view Go's cyclomatic complexity here: [https://goreportcard.com/report/github.com/sean9999/GoFunctional]
 package functional
-
-import (
-	"github.com/sean9999/GoFunctional/fslice"
-)
-
-// convenience for [fslice.From]
-func FsliceFrom[T comparable](inputSlice []T) fslice.MethodSet[T] {
-	fsliceWithData := fslice.From(inputSlice)
-	return fsliceWithData
-}
-
-// convenience for [fslice.New]
-func NewFslice[T comparable](length, capacity int) fslice.MethodSet[T] {
-	fsliceZeroed := fslice.New[T](length, capacity)
-	return fsliceZeroed
-}
