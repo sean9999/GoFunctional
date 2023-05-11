@@ -39,6 +39,8 @@ func ExampleFslice_Map() {
 	}
 	shoutyBase := fslice.From(lowerBase).Map(shoutCaseEveryOther).ToSlice()
 
+	//	have you ever wondered
+
 	fmt.Println(squares)
 	fmt.Println(shoutyBase)
 
@@ -92,14 +94,11 @@ func BenchmarkMap(b *testing.B) {
 		inputStrings := strings.Split(strings.Trim(inputText, " "), ",")
 
 		b.Run("Identity", func(b *testing.B) {
-
 			var passThrough fslice.MapFunction[float64] = func(v float64, _ int, _ []float64) float64 {
 				return v
 			}
-
 			b.Run(fmt.Sprintf("Functional_%d", thisLength), func(b *testing.B) {
 				thisBenchMarkResult := make([]float64, 0, thisLength)
-
 				for i := 0; i < b.N; i++ {
 					thisBenchMarkResult = fslice.From(inputFloats).Map(passThrough).ToSlice()
 				}
@@ -110,18 +109,14 @@ func BenchmarkMap(b *testing.B) {
 				thisBenchMarkResult := make([]float64, 0, thisLength)
 				for i := 0; i < b.N; i++ {
 					returnSlice := make([]float64, 0, thisLength)
-					for _, v := range inputFloats {
-						returnSlice = append(returnSlice, v)
-					}
+					returnSlice = append(returnSlice, inputFloats...)
 					thisBenchMarkResult = returnSlice
 				}
 				benchMarkFloatResult = thisBenchMarkResult
 			})
-
 		})
 
 		b.Run("Fibonacci", func(b *testing.B) {
-
 			fib := func(_ float64, i int, arr []float64) float64 {
 				r := float64(0)
 				switch {
@@ -135,7 +130,6 @@ func BenchmarkMap(b *testing.B) {
 
 			b.Run(fmt.Sprintf("Functional_%d", thisLength), func(b *testing.B) {
 				thisBenchMarkResult := make([]float64, 0, thisLength)
-
 				for i := 0; i < b.N; i++ {
 					thisBenchMarkResult = fslice.From(inputFloats).Map(fib).ToSlice()
 				}
@@ -162,7 +156,6 @@ func BenchmarkMap(b *testing.B) {
 		})
 
 		b.Run("Convert some words to Uppercase", func(b *testing.B) {
-
 			var vowelsToUpper fslice.MapFunction[string] = func(word string, i int, arr []string) string {
 				re := regexp.MustCompile(`^[aeiouAEIOU]`)
 				if re.MatchString(word) {
@@ -170,7 +163,6 @@ func BenchmarkMap(b *testing.B) {
 				}
 				return word
 			}
-
 			b.Run(fmt.Sprintf("Functional_%d", thisLength), func(b *testing.B) {
 				thisBenchMarkResult := make([]string, 0, thisLength)
 				for i := 0; i < b.N; i++ {
@@ -178,7 +170,6 @@ func BenchmarkMap(b *testing.B) {
 				}
 				benchMarkStringResult = thisBenchMarkResult
 			})
-
 			b.Run(fmt.Sprintf("Bare_%d", thisLength), func(b *testing.B) {
 				thisBenchMarkResult := make([]string, 0, thisLength)
 				for i := 0; i < b.N; i++ {
@@ -191,12 +182,10 @@ func BenchmarkMap(b *testing.B) {
 							thisBenchMarkResult = append(thisBenchMarkResult, word)
 						}
 					}
+					benchMarkStringResult = thisBenchMarkResult
 				}
 				benchMarkStringResult = thisBenchMarkResult
 			})
-
 		})
-
 	}
-
 }

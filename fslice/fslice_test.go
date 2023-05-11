@@ -2,52 +2,51 @@ package fslice_test
 
 import (
 	"fmt"
-	"reflect"
-	"testing"
+	"strings"
+
+	"github.com/fxtlabs/primes"
+	"github.com/sean9999/GoFunctional/fslice"
 )
 
-func formatTestOutput[T any](got T, want T) string {
-	return fmt.Sprintf("\nwanted:  \t%#v\nbut got:\t%#v", want, got)
-}
+func Example() {
 
-func assertScalars[T comparable](t testing.TB, got T, want T) {
-	t.Helper()
-	if got != want {
-		t.Errorf(formatTestOutput[T](got, want))
-	}
-}
+	fib := generateFibonacci(25)
 
-func assertDeepEquals[T comparable](t testing.TB, got []T, want []T) {
-	t.Helper()
-	ok := reflect.DeepEqual(want, got)
-	if !ok {
-		t.Errorf(formatTestOutput[[]T](got, want))
-	}
-}
-
-// @todo: make this less naive
-func IsPrime(n int) bool {
-	if n < 2 {
-		return false
-	}
-	for i := 2; i*i <= n; i++ {
-		if n%i == 0 {
-			return false
+	// of the first 25 fibonacci numbers, which are not primes?
+	fibNonPrimes := fslice.From(fib).Filter(func(n int, _ int, _ []int) bool {
+		r := false
+		if n > 1 {
+			r = !primes.IsPrime(n)
 		}
-	}
-	return true
-}
+		return r
+	})
 
-func generateFloats(howmany int) []float64 {
-	r := make([]float64, 0, howmany)
-	j := float64(0)
-	for i := 0; i < howmany; i++ {
-		j = j + float64(i)
-		r = append(r, j)
-	}
-	return r
-}
+	// among those, which are co-prime with all others?
+	coPrimes := fibNonPrimes.Filter(func(n int, i int, nonPrimes []int) bool {
 
-// dissuade compiler from improper garbage collection
-var benchMarkFloatResult []float64
-var benchMarkStringResult []string
+		return fslice.From(nonPrimes).Every(func(m int, j int, _ []int) bool {
+			return (i == j) || primes.Coprime(n, m)
+		})
+
+	})
+
+	// Fslice is generic, accepting any comparable type
+	lowerBase := []string{"all", "your", "base", "are", "belong", "to", "us"}
+	shoutCaseEveryOther := func(word string, i int, _ []string) string {
+		if i%2 == 1 {
+			word = strings.ToUpper(word)
+		}
+		return word
+	}
+	shoutyBase := fslice.From(lowerBase).Map(shoutCaseEveryOther)
+
+	fmt.Println(fibNonPrimes)
+	fmt.Println(coPrimes)
+	fmt.Println(shoutyBase)
+
+	// Output:
+	// [8 21 34 55 144 377 610 987 2584 4181 6765 10946 17711 46368]
+	// [4181 17711]
+	// [all YOUR base ARE belong TO us]
+
+}

@@ -1,7 +1,7 @@
 // Package fslice implements a set of methods for operating on slices in a Functional Programming way.
 package fslice
 
-// Fslice is a slice with helpful methods in the Functional Programming style
+// Fslice is a slice with helpful methods in the Functional Programming style. It is generic, accepting any comparable type
 type Fslice[T comparable] []T
 
 // MethodSet is the interface Fslice implements

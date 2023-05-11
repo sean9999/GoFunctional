@@ -8,6 +8,7 @@ import (
 
 	"testing"
 
+	"github.com/fxtlabs/primes"
 	functional "github.com/sean9999/GoFunctional"
 	"github.com/sean9999/GoFunctional/fslice"
 )
@@ -63,10 +64,7 @@ func TestFilter(t *testing.T) {
 		inputSlice := []string{"all", "your", "BASE", "are", "belong", "to", "US"}
 		noCaps := func(word string, _ int, _ []string) bool {
 			upperCaseWord := strings.ToUpper(word)
-			if word == upperCaseWord {
-				return false
-			}
-			return true
+			return (word != upperCaseWord)
 		}
 		want := []string{"all", "your", "are", "belong", "to"}
 		got := fslice.From(inputSlice).Filter(noCaps).ToSlice()
@@ -75,7 +73,7 @@ func TestFilter(t *testing.T) {
 
 	t.Run("Omit prime numbers", func(t *testing.T) {
 		outPrimes := func(n int, _ int, _ []int) bool {
-			return !IsPrime(n)
+			return !primes.IsPrime(n)
 		}
 		inputSlice := []int{0, 1, 2, 11, 13, 17, 23, 29, 31, 37, 43, 53, 61, 79, 87, 91, 101, 103, 107, 113, 433, 761, 25519, 65531}
 		got := fslice.From(inputSlice).Filter(outPrimes).ToSlice()

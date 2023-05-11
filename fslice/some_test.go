@@ -6,6 +6,7 @@ import (
 
 	"testing"
 
+	"github.com/fxtlabs/primes"
 	"github.com/sean9999/GoFunctional/fslice"
 )
 
@@ -51,10 +52,7 @@ func TestSome(t *testing.T) {
 		inputSlice := []string{"all", "your", "BASE", "are", "belong", "to", "US"}
 		isAllCaps := func(word string, _ int, _ []string) bool {
 			upperCaseWord := strings.ToUpper(word)
-			if word == upperCaseWord {
-				return true
-			}
-			return false
+			return (word == upperCaseWord)
 		}
 		want := true
 		got := fslice.From(inputSlice).Some(isAllCaps)
@@ -65,7 +63,7 @@ func TestSome(t *testing.T) {
 
 	t.Run("Contains one or more prime numbers", func(t *testing.T) {
 		isPrime := func(n int, _ int, _ []int) bool {
-			return IsPrime(n)
+			return primes.IsPrime(n)
 		}
 		inputSlice := []int{0, 1, 2, 11, 13, 17, 23, 29, 31, 37, 43, 53, 61, 79, 87, 91, 101, 103, 107, 113, 433, 761, 25519, 65531}
 		got := fslice.From(inputSlice).Some(isPrime)

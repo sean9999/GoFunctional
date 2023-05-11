@@ -12,22 +12,26 @@ Go Functional provides Functional Programming capabilities to Go.
 
 ![Go Functional](chariot.jpg)
 
-## Sub Packages
+Read the [blog post here](https://www.seanmacdonald.ca/posts/go-functional): 
+
+## Root package
 
 The root package _functional_ acts as a namespace for sub-packages that target specific data structures, like slices and maps. It also exposes some common helpers useful for testing and benchmarks. You will rarely need to import it; rather, you will want to import a sub-package, such as Fslice.
+
+## Sub Packages
 
 ### Fslice
 
 Fslice provides a set of methods for operating on slices. Methods that could return a slice return an Fslice, making the system chainable. Among them are common functional programming methods, such as:
 
-- Fslice.Map() - takes a function that maps over every element, returning a transformed slice (chainable)
-- Fslice.Filter() - takes a function that filters a slice to a smaller subset (chainable)
-- Fslice.Includes() - returns true if a value was found in the slice
-- Fslice.Some() - takes a function that returns a boolean. Returns true early if the function returned true once
-- Fslice.Every() - takes a function that returns a boolean. Returns false early if the function returned false once
-- Fslice.ToSlice() - returns the underlying (non-functional) slice
-- Fslice.Reduce() - takes a function that behaves like an accumulator, returning a single value
-- Fslice.Sort() - takes a function that sorts a slice, and returns it (chainable)
+- Map() - takes a function that maps over every element, returning a transformed slice (chainable)
+- Filter() - takes a function that filters a slice to a smaller subset (chainable)
+- Includes() - returns true if a value was found in the slice
+- Some() - takes a function that returns a boolean. Returns true early if the function returned true once
+- Every() - takes a function that returns a boolean. Returns false early if the function returned false once
+- ToSlice() - returns the underlying (non-functional) slice
+- Reduce() - takes a function that behaves like an accumulator, returning a single value
+- Sort() - takes a function that sorts a slice, and returns it (chainable)
 
 Calling it is easy. It works like this:
 
@@ -81,12 +85,12 @@ fmt.Println(outputNums)
 
 A similar set of methods for maps, which will be under a package called Fmap. There might be an opportunity to do something for structs as well. We'll see.
 
-A bothersome limitation of Go Functional is the inability to use different types. I'd like to find an elegant solution to that, leveraging the concept of a Functor.
+While generic, Go Functional is not fully polymorphic. I'd like to find an elegant way to provide this, using the concept of a Functor.
+
+There is no reason Go Functional could not provide an elegant and idiomatic [set-builder](https://en.wikipedia.org/wiki/Set-builder_notation#In_programming_languages).
 
 Benchmarks should be plotted so that performance characteristics can be seen visually, and time and space complexity metrics can be extrapolated.
 
 Some system to measure the rate at which cyclomatic complexity increases as the chain of methods increases, would be useful.
 
-Pull requests welcome.
-
-https://www.seanmacdonald.ca/
+Pull requests are most welcome.
